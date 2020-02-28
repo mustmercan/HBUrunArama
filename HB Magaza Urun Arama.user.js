@@ -8,8 +8,18 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
 
-    // Your code here...
+
+
+class HBProductSerch
+{
+    constructor()
+    {
+        this.$=window.$;
+        console.log("HB Product Search Create");
+    }
+}
+
+(function() {
+    var hbSearch=new HBProductSerch();
 })();
