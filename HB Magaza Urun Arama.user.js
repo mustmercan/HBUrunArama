@@ -120,6 +120,8 @@ class HBProductSerch {
                 },
             }).done(function (data) {
                 resolve(data);
+            }).fail((error)=>{
+                reject(error);
             });
 
 
@@ -139,7 +141,10 @@ class HBProductSerch {
                 },
             }).done(function (data) {
                 resolve(data);
+            }).fail((error)=>{
+                reject(error);
             });
+;
 
 
         });
@@ -149,20 +154,26 @@ class HBProductSerch {
         return new Promise((resolve, reject) => {
             let response = [];
             this.searchProduct(searchData).then(async (data) => {
-                if (data && data._links && data._links.product) {
-                    if (Array.isArray(data._links.product)) {
-                        for (let index = 0; index < data._links.product.length; index++) {
-                            const element = data._links.product[index];
-                            let detail = await this.productDetail(element.href);
+                try {
+                    if (data && data._links && data._links.product) {
+                        if (Array.isArray(data._links.product)) {
+                            for (let index = 0; index < data._links.product.length; index++) {
+                                const element = data._links.product[index];
+                                let detail = await this.productDetail(element.href);
+                                response.push(detail);
+                            }
+                        }
+                        else {
+                            let detail = await this.productDetail(data._links.product.href);
                             response.push(detail);
                         }
                     }
-                    else {
-                        let detail = await this.productDetail(data._links.product.href);
-                        response.push(detail);
-                    }
+                    resolve(response);
+                    
+                } catch (error) {
+                    reject(error);
                 }
-                resolve(response);
+               
 
 
             })
