@@ -20,41 +20,39 @@ class HBProductSerch {
         this.SearchListKey = "Searchlist";
         this.$ = $;
         this.localStorageHelper = new LocalStorageHelper();
-        
-        this.container=this.$("body").append("<div id='HBProductSerch'/>").find("#HBProductSerch");
-        this.importText=this.container.append(`<p><textarea id="importText" rows="20" cols="50"></textarea></p>`).find("#importText");
-        this.importButton=this.container.append(`<p><button id="importButton">İçe Aktar</button><p>`).find("#importButton").on("click",(e)=>{e.preventDefault();this.importData();});
-        this.startButton=this.container.append(`<p><button id="startButton">Ara</button><p>`).find("#startButton").on("click",(e)=>{e.preventDefault();this.startSearch();});;
-        this.resultContainer=this.container.append(`<div id="resultContainer"></div>`).find("#resultContainer");
+
+        this.container = this.$("body").append("<div id='HBProductSerch'/>").find("#HBProductSerch");
+        this.importText = this.container.append(`<p><textarea id="importText" rows="20" cols="50"></textarea></p>`).find("#importText");
+        this.importButton = this.container.append(`<p><button id="importButton">İçe Aktar</button><p>`).find("#importButton").on("click", (e) => { e.preventDefault(); this.importData(); });
+        this.startButton = this.container.append(`<p><button id="startButton">Ara</button><p>`).find("#startButton").on("click", (e) => { e.preventDefault(); this.startSearch(); });;
+        this.resultContainer = this.container.append(`<div id="resultContainer"></div>`).find("#resultContainer");
 
 
 
-        console.log("HB Product Search Create",create);
+        console.log("HB Product Search Create", create);
 
-       this.refreshTable();
+        this.refreshTable();
     }
 
-    importData=()=>{
-        let data=this.importText.val();
-        if(data)
-        {
-            let datas=data.split("\n");
-            let list=[]
+    importData = () => {
+        let data = this.importText.val();
+        if (data) {
+            let datas = data.split("\n");
+            let list = []
             for (let index = 0; index < datas.length; index++) {
                 const d = datas[index];
-                if(d)
-                {
-                    list.push({ "searchData": d.trim()})
+                if (d) {
+                    list.push({ "searchData": d.trim() })
                 }
             }
-            this.localStorageHelper.setLocalData(this.SearchListKey,list);
+            this.localStorageHelper.setLocalData(this.SearchListKey, list);
         }
         this.refreshTable();
     }
 
     getSearchList = () => this.localStorageHelper.getLocalData(this.SearchListKey);
 
-    startSearch = async () => {        
+    startSearch = async () => {
         let list = this.getSearchList();
         this.refreshTable(list);
         if (this.getSearchList() && list.length > 0) {
@@ -82,8 +80,7 @@ class HBProductSerch {
         }
     }
 
-    refreshTable=(list)=>
-    {
+    refreshTable = (list) => {
         this.resultContainer.html(this.getTable(list));
     }
 
@@ -120,7 +117,7 @@ class HBProductSerch {
                 },
             }).done(function (data) {
                 resolve(data);
-            }).fail((error)=>{
+            }).fail((error) => {
                 reject(error);
             });
 
@@ -141,10 +138,10 @@ class HBProductSerch {
                 },
             }).done(function (data) {
                 resolve(data);
-            }).fail((error)=>{
+            }).fail((error) => {
                 reject(error);
             });
-;
+            ;
 
 
         });
@@ -153,30 +150,31 @@ class HBProductSerch {
     searchAndDetail = async (searchData) => {
         return new Promise((resolve, reject) => {
             let response = [];
-            this.searchProduct(searchData).then(async (data) => {
-                try {
-                    if (data && data._links && data._links.product) {
-                        if (Array.isArray(data._links.product)) {
-                            for (let index = 0; index < data._links.product.length; index++) {
-                                const element = data._links.product[index];
-                                let detail = await this.productDetail(element.href);
+            try {
+                this.searchProduct(searchData).then(async (data) => {
+                    try {
+                        if (data && data._links && data._links.product) {
+                            if (Array.isArray(data._links.product)) {
+                                for (let index = 0; index < data._links.product.length; index++) {
+                                    const element = data._links.product[index];
+                                    let detail = await this.productDetail(element.href);
+                                    response.push(detail);
+                                }
+                            }
+                            else {
+                                let detail = await this.productDetail(data._links.product.href);
                                 response.push(detail);
                             }
                         }
-                        else {
-                            let detail = await this.productDetail(data._links.product.href);
-                            response.push(detail);
-                        }
+                        resolve(response);
+
+                    } catch (error) {
+                        reject(error);
                     }
-                    resolve(response);
-                    
-                } catch (error) {
-                    reject(error);
-                }
-               
-
-
-            })
+                },(error)=>reject(error))
+            } catch (error) {
+                reject(error);
+            }
 
         })
 
@@ -188,9 +186,9 @@ class HBProductSerch {
     }
 
     getTable = (list) => {
-        list = list?list: this.getSearchList();
-        
-        let tbody="";
+        list = list ? list : this.getSearchList();
+
+        let tbody = "";
         for (let index = 0; index < list.length; index++) {
             const searchItem = list[index];
             if (searchItem) {
@@ -222,10 +220,10 @@ class HBProductSerch {
                         row += `<td>${detail.name}</td>`;
                         row += `<td>${detail.sku}</td>`;
                         row += `<td>${detail.ean}</td>`;
-                        row += `<td>${detail.currentMinimumSalePrice? detail.currentMinimumSalePrice.amount:-1}</td>`;
-                        row += `<td>${detail.currentMinimumSalePrice?detail.currentMinimumSalePrice.currency:"-"}</td>`;
+                        row += `<td>${detail.currentMinimumSalePrice ? detail.currentMinimumSalePrice.amount : -1}</td>`;
+                        row += `<td>${detail.currentMinimumSalePrice ? detail.currentMinimumSalePrice.currency : "-"}</td>`;
                         row += "</tr>";
-                        tbody+=(row);
+                        tbody += (row);
                     }
                 }
                 else {
@@ -237,11 +235,11 @@ class HBProductSerch {
                     row += `<td></td>`;
                     row += `<td></td>`;
                     row += "</tr>";
-                    tbody+=(row);
+                    tbody += (row);
 
                 }
 
-               
+
             }
 
         }
@@ -317,11 +315,10 @@ class LocalStorageHelper {
 
 }
 
-var hbSearch=undefined;
-(function() {
-    if(!hbSearch)
-    {
-        hbSearch = new HBProductSerch("load");       
+var hbSearch = undefined;
+(function () {
+    if (!hbSearch) {
+        hbSearch = new HBProductSerch("load");
     }
-   
+
 })();
