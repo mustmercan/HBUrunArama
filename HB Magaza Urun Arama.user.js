@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  HB Toplu Ürün Arama
 // @author       mustmercan
-// @match        merchant.hepsiburada.com/#ProductListing
+// @match        *merchant.hepsiburada.com/#ProductListing*
 // @grant        none
 // ==/UserScript==
 
